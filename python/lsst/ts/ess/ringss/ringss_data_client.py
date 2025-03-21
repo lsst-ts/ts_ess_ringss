@@ -1,4 +1,4 @@
-# This file is part of ts_ess_common.
+# This file is part of ts_ess_ringss.
 #
 # Developed for the Vera C. Rubin Observatory Telescope and Site Systems.
 # This product includes software developed by the LSST Project
@@ -22,9 +22,12 @@
 __all__ = ["RingssDataClient"]
 
 import datetime
+import logging
+import types
 import typing
 
 from astropy.time import Time
+from lsst.ts import salobj
 from lsst.ts.utils import tai_from_utc
 
 from .sqlalchemy_data_client import SqlalchemyDataClient
@@ -51,12 +54,23 @@ class RingssDataClient(SqlalchemyDataClient):
         Simulation mode; 0 for normal operation.
     """
 
+    def __init__(
+        self,
+        config: types.SimpleNamespace,
+        topics: salobj.Controller | types.SimpleNamespace,
+        log: logging.Logger,
+        simulation_mode: int = 0,
+    ) -> None:
+        super().__init__(
+            config=config, topics=topics, log=log, simulation_mode=simulation_mode
+        )
+
     def get_sql_query(self) -> str:
         return f"SELECT * FROM {self.table_name} WHERE time > :t0"
 
     def get_simulation_data(self) -> dict[str, typing.Any]:
         return dict(
-            time=datetime.datetime.utcnow(),
+            time=datetime.datetime.now(datetime.UTC).replace(tzinfo=None),
             star=1234,
             zen=10.0,
             flux=100000.5,
@@ -107,4 +121,3 @@ class RingssDataClient(SqlalchemyDataClient):
         await self.topics.evt_ringssMeasurement.set_write(**ringss_event)
         self.log.debug("Emitted ringssMeasurement.")
         self.last_timestamp = max((self.last_timestamp, timestamp))
-        self.wrote_event.set()

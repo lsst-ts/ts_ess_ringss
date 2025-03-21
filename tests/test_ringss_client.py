@@ -131,8 +131,8 @@ class RingssClientTestCase(unittest.IsolatedAsyncioTestCase):
 
     @contextlib.asynccontextmanager
     async def make_topics(self) -> AsyncGenerator[types.SimpleNamespace, None]:
-        if hasattr(salobj, "set_random_topic_subname"):
-            salobj.set_random_topic_subname()
+        if hasattr(salobj, "set_test_topic_subname"):
+            salobj.set_test_topic_subname()
         else:
             salobj.set_random_lsst_dds_partition_prefix()
         async with salobj.make_mock_write_topics(
@@ -200,14 +200,17 @@ class RingssClientTestCase(unittest.IsolatedAsyncioTestCase):
             await data_client.start()
             assert not data_client.run_task.done()
 
-            await asyncio.wait_for(data_client.wrote_event.wait(), timeout=TIMEOUT)
+            for i in range(100):
+                await asyncio.sleep(TIMEOUT / 100)
+                if topics.evt_ringssMeasurement.has_data:
+                    current_time = tai_from_utc(Time.now())
+                    break
 
             await data_client.stop()
             await asyncio.sleep(0.001)
             assert data_client.run_task.done()
             assert topics.evt_ringssMeasurement.has_data
 
-            current_time = tai_from_utc(Time.now())
             event = topics.evt_ringssMeasurement.data_list[-1]
             self.assertAlmostEqual(event.timestamp, current_time, 0)
             assert event.hrNum == 1234
@@ -232,29 +235,13 @@ class RingssClientTestCase(unittest.IsolatedAsyncioTestCase):
                 await data_client.start()
                 assert not data_client.run_task.done()
 
-                for i in range(5):
-                    try:
-                        data_client.wrote_event.clear()
-                        await asyncio.wait_for(
-                            data_client.wrote_event.wait(), timeout=TIMEOUT
-                        )
-                    except TimeoutError:
-                        # Usually, but not always, we will need to wait five
-                        # times for five events. If we have an extra wait,
-                        # we'll ignore the TimeoutError.
-                        pass
+                n_events_expected = 5
 
-                await asyncio.sleep(1)
-                assert len(topics.evt_ringssMeasurement.data_list) == 5
-
-                # No more events after that
-                with self.assertRaises(TimeoutError):
-                    data_client.wrote_event.clear()
-                    await asyncio.wait_for(
-                        data_client.wrote_event.wait(), timeout=TIMEOUT
-                    )
-
-                assert len(topics.evt_ringssMeasurement.data_list) == 5
+                # Allow plenty of time for all expected events
+                # plus more for extra events that shouldn't
+                # be there, if any.
+                await asyncio.sleep(n_events_expected + TIMEOUT + 1)
+                assert len(topics.evt_ringssMeasurement.data_list) == n_events_expected
 
                 # The five emitted events should match the last 5 stars in the
                 # database. The first five are not emitted because they have

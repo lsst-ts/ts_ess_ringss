@@ -1,4 +1,4 @@
-# This file is part of ts_ess_common.
+# This file is part of ts_ess_ringss.
 #
 # Developed for the Vera C. Rubin Observatory Telescope and Site Systems.
 # This product includes software developed by the LSST Project
@@ -70,11 +70,6 @@ class SqlalchemyDataClient(BaseReadLoopDataClient):
     ) -> None:
         self.engine: AsyncEngine | None = None
         self.last_timestamp = Time(Time.now(), format="iso")
-        self.log = log
-
-        # An event that unit tests can use to wait for data to be written.
-        # A test can clear the event, then wait for it to be set.
-        self.wrote_event = asyncio.Event()
 
         super().__init__(
             config=config, topics=topics, log=log, simulation_mode=simulation_mode
@@ -117,8 +112,14 @@ additionalProperties: false
             key: quote(os.getenv(key, "")) for key in environment_variable_list
         }
         self.db_uri = self.config.db_uri.format(**environment_variables)
-        self.poll_interval = self.config.poll_interval
-        self.table_name = self.config.table_name
+
+    @property
+    def poll_interval(self) -> float:
+        return self.config.poll_interval
+
+    @property
+    def table_name(self) -> str:
+        return self.config.table_name
 
     def descr(self) -> str:
         return self.config.db_uri
@@ -140,9 +141,6 @@ additionalProperties: false
         """Return the sql query to send to the server.
 
         Returns
-        -             await data_client.stop()
-             assert data_client.handle is None
-             assert data_client.run_task.done()------
         str
             The SQL query to be used.
         """

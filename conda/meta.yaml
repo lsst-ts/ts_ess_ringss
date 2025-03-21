@@ -18,11 +18,13 @@ test:
     - ts-salobj {{ salobj_version }}
     - aiosqlite
     - astropy
+    - backoff
     - pyyaml
     - sqlalchemy
   source_files:
     - python
     - tests
+    - pyproject.toml
   commands:
     - pytest
 
@@ -43,6 +45,8 @@ requirements:
     - ts-utils
     - ts-ess-common
     - aiomysql
+    - aiosqlite
     - astropy
+    - backoff
     - pyyaml
     - sqlalchemy

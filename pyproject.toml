@@ -9,6 +9,7 @@ license = { text = "GPL" }
 classifiers = [ "Programming Language :: Python :: 3" ]
 urls = { documentation = "https://ts-ess-ringss.lsst.io", repository = "https://github.com/lsst-ts/ts_ess_ringss" }
 dynamic = [ "version" ]
+dependencies = [ "aiosqlite" ]
 
 [tool.setuptools.dynamic]
 version = { attr = "setuptools_scm.get_version" }
