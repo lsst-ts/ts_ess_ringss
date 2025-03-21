@@ -5,8 +5,12 @@ For more information, see:
 https://developer.lsst.io/stack/building-single-package-docs.html
 """
 
-from documenteer.conf.pipelinespkg import *
-
+from documenteer.conf.pipelinespkg import (
+    html_short_title,
+    html_theme_options,
+    html_title,
+    project,
+)
 
 project = "ts_ess_ringss"
 html_theme_options["logotext"] = project
