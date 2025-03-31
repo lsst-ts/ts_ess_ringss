@@ -107,6 +107,9 @@ additionalProperties: false
         )
 
     def configure(self) -> None:
+        # Find all of the {ENVIRONMENT} {VARIABLES}
+        # in the URI for the database and substitute them.
+        # This allows us to pass secrets into the CSC.
         environment_variable_list = re.findall(r"\{(.*?)\}", self.config.db_uri)
         environment_variables = {
             key: quote(os.getenv(key, "")) for key in environment_variable_list
