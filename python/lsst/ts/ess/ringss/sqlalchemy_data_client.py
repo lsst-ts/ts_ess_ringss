@@ -129,8 +129,12 @@ additionalProperties: false
 
     async def connect(self) -> None:
         self.log.debug("SqlalchemyDataClient.connect()")
-        if not self.simulation_mode:
-            self.engine = create_async_engine(self.db_uri)
+        try:
+            if not self.simulation_mode:
+                self.engine = create_async_engine(self.db_uri)
+        except Exception as e:
+            self.log.exception(f"Failed to create SQL engine: {e!r}")
+            raise
         await super().connect()
 
     async def disconnect(self) -> None:
@@ -167,23 +171,29 @@ additionalProperties: false
 
     @backoff.on_exception(backoff.expo, OperationalError, max_tries=2)
     async def execute_sql_query(self) -> Sequence[sqlalchemy.engine.row.Row]:
+        self.log.debug("SqlalchemyDataClient.execute_sql_query()")
         if self.engine is None:
             raise RuntimeError("Not connected.")
 
-        async with self.engine.connect() as conn:
-            t0 = (
-                self.last_timestamp.iso
-                if self.simulation_mode == 1
-                else self.last_timestamp.datetime
-            )
-            stmt = sqlalchemy.text(self.get_sql_query()).bindparams(t0=t0)
-            result = await conn.execute(stmt)
-            return result.fetchall()
+        try:
+            async with self.engine.connect() as conn:
+                t0 = (
+                    self.last_timestamp.iso
+                    if self.simulation_mode == 1
+                    else self.last_timestamp.datetime
+                )
+                stmt = sqlalchemy.text(self.get_sql_query()).bindparams(t0=t0)
+                result = await conn.execute(stmt)
+                return result.fetchall()
+        except Exception as e:
+            self.log.exception(f"Failed to execute SQL query: {e!r}")
+            raise
 
     async def read_data(self) -> None:
         self.log.debug("SqlalchemyDataClient.read_data()")
         if self.simulation_mode == 0:
             rows = await self.execute_sql_query()
+            self.log.debug(f"Read {len(rows)} from database.")
             for row in rows:
                 await self.process(dict(row._mapping))
         else:
@@ -191,4 +201,5 @@ additionalProperties: false
                 row = self.get_simulation_data()
                 await self.process(row)
 
+        self.log.debug(f"sleep({self.poll_interval})")
         await asyncio.sleep(self.poll_interval)

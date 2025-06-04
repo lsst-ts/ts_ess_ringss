@@ -69,6 +69,7 @@ class RingssDataClient(SqlalchemyDataClient):
         return f"SELECT * FROM {self.table_name} WHERE time > :t0"
 
     def get_simulation_data(self) -> dict[str, typing.Any]:
+        self.log.debug("RingssDataclient.get_simulation_data()")
         return dict(
             time=datetime.datetime.now(datetime.UTC).replace(tzinfo=None),
             star=1234,
@@ -93,6 +94,7 @@ class RingssDataClient(SqlalchemyDataClient):
         )
 
     async def process(self, query_row: dict[str, typing.Any]) -> None:
+        self.log.debug("RingssDataclient.process()")
         timestamp = Time(query_row["time"])
         ringss_event = {
             "timestamp": tai_from_utc(timestamp),

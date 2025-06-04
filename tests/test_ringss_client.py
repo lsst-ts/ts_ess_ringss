@@ -198,25 +198,25 @@ class RingssClientTestCase(unittest.IsolatedAsyncioTestCase):
             )
 
             await data_client.start()
-            assert not data_client.run_task.done()
+            self.assertFalse(data_client.run_task.done())
 
             for i in range(100):
                 await asyncio.sleep(TIMEOUT / 100)
                 if topics.evt_ringssMeasurement.has_data:
                     current_time = tai_from_utc(Time.now())
                     break
+            else:
+                self.fail("evt_ringssMeasurement was not emitted.")
 
             await data_client.stop()
-            await asyncio.sleep(0.001)
-            assert data_client.run_task.done()
-            assert topics.evt_ringssMeasurement.has_data
+            try:
+                await asyncio.wait_for(data_client.run_task, timeout=TIMEOUT)
+            except asyncio.CancelledError:
+                pass
 
             event = topics.evt_ringssMeasurement.data_list[-1]
             self.assertAlmostEqual(event.timestamp, current_time, 0)
-            assert event.hrNum == 1234
-
-            await data_client.stop()
-            await data_client.run_task
+            self.assertEqual(event.hrNum, 1234)
 
     async def test_sqlite_database(self) -> None:
         async with self.make_database() as db_path:
