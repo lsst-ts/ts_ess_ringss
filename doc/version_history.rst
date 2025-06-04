@@ -6,6 +6,12 @@
 Version History
 ###############
 
+v0.1.1
+------
+
+* Additional logging.
+
+
 v0.1.0
 ------
 
