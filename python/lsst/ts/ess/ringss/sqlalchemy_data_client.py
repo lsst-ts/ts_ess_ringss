@@ -92,16 +92,23 @@ properties:
     description: The name of the table in the database to be queried.
     type: string
   poll_interval:
-    description: Time between queries to the database
+    description: Time between queries to the database (sec).
     type: number
     default: 10
   max_read_timeouts:
     description: Maximum timeouts allowed before causing the CSC to fault.
     type: number
     default: 5
+  connect_timeout:
+    description: Timeout for connecting to the TCP/IP interface (sec).
+    type: number
+    default: 60.0
 required:
   - db_uri
   - table_name
+  - poll_interval
+  - max_read_timeouts
+  - connect_timeout
 additionalProperties: false
 """
         )

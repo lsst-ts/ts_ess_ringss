@@ -153,6 +153,9 @@ class RingssClientTestCase(unittest.IsolatedAsyncioTestCase):
             config = self.validate_config(
                 db_uri="mysql://{AN_ENVIRONMENT_VARIABLE}localhost/db",
                 table_name="mytable",
+                poll_interval=10,
+                max_read_timeouts=5,
+                connect_timeout=1.0,
             )
             data_client = RingssDataClient(
                 config=config,
@@ -172,6 +175,7 @@ class RingssClientTestCase(unittest.IsolatedAsyncioTestCase):
                 table_name="mytable",
                 poll_interval=123,
                 max_read_timeouts=99,
+                connect_timeout=1.0,
             )
             data_client = RingssDataClient(
                 config=config,
@@ -189,6 +193,8 @@ class RingssClientTestCase(unittest.IsolatedAsyncioTestCase):
                 db_uri="mysql://{AN_ENVIRONMENT_VARIABLE}localhost/db",
                 table_name="mytable",
                 poll_interval=0.1,
+                max_read_timeouts=5,
+                connect_timeout=1.0,
             )
             data_client = RingssDataClient(
                 config=config,
@@ -225,6 +231,8 @@ class RingssClientTestCase(unittest.IsolatedAsyncioTestCase):
                     db_uri=f"sqlite+aiosqlite:///{db_path}",
                     table_name="cpdata_ringss",
                     poll_interval=0.1,
+                    max_read_timeouts=5,
+                    connect_timeout=1.0,
                 )
                 data_client = RingssDataClient(
                     config=config,
