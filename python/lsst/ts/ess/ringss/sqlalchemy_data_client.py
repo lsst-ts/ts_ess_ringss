@@ -35,10 +35,11 @@ import backoff
 import sqlalchemy
 import yaml
 from astropy.time import Time
-from lsst.ts import salobj
-from lsst.ts.ess.common.data_client import BaseReadLoopDataClient
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+
+from lsst.ts import salobj
+from lsst.ts.ess.common.data_client import BaseReadLoopDataClient
 
 
 class SqlalchemyDataClient(BaseReadLoopDataClient):
@@ -71,9 +72,7 @@ class SqlalchemyDataClient(BaseReadLoopDataClient):
         self.engine: AsyncEngine | None = None
         self.last_timestamp = Time(Time.now(), format="iso")
 
-        super().__init__(
-            config=config, topics=topics, log=log, simulation_mode=simulation_mode
-        )
+        super().__init__(config=config, topics=topics, log=log, simulation_mode=simulation_mode)
         self.configure()
 
     @classmethod
@@ -118,9 +117,7 @@ additionalProperties: false
         # in the URI for the database and substitute them.
         # This allows us to pass secrets into the CSC.
         environment_variable_list = re.findall(r"\{(.*?)\}", self.config.db_uri)
-        environment_variables = {
-            key: quote(os.getenv(key, "")) for key in environment_variable_list
-        }
+        environment_variables = {key: quote(os.getenv(key, "")) for key in environment_variable_list}
         self.db_uri = self.config.db_uri.format(**environment_variables)
 
     @property
@@ -184,11 +181,7 @@ additionalProperties: false
 
         try:
             async with self.engine.connect() as conn:
-                t0 = (
-                    self.last_timestamp.iso
-                    if self.simulation_mode == 1
-                    else self.last_timestamp.datetime
-                )
+                t0 = self.last_timestamp.iso if self.simulation_mode == 1 else self.last_timestamp.datetime
                 stmt = sqlalchemy.text(self.get_sql_query()).bindparams(t0=t0)
                 result = await conn.execute(stmt)
                 return result.fetchall()

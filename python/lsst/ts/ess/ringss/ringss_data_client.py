@@ -27,6 +27,7 @@ import types
 import typing
 
 from astropy.time import Time
+
 from lsst.ts import salobj
 from lsst.ts.utils import tai_from_utc
 
@@ -61,9 +62,7 @@ class RingssDataClient(SqlalchemyDataClient):
         log: logging.Logger,
         simulation_mode: int = 0,
     ) -> None:
-        super().__init__(
-            config=config, topics=topics, log=log, simulation_mode=simulation_mode
-        )
+        super().__init__(config=config, topics=topics, log=log, simulation_mode=simulation_mode)
 
     def get_sql_query(self) -> str:
         return f"SELECT * FROM {self.table_name} WHERE time > :t0"

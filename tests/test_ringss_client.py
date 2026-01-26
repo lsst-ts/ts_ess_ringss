@@ -34,6 +34,7 @@ from typing import Any
 from astropy.table import Table
 from astropy.table.row import Row
 from astropy.time import Time
+
 from lsst.ts import salobj
 from lsst.ts.ess.ringss import RingssDataClient
 from lsst.ts.utils import tai_from_utc
@@ -114,10 +115,7 @@ class RingssClientTestCase(unittest.IsolatedAsyncioTestCase):
 
             # Make the rows load only when each one's timestamp is before
             # the current time.
-            tasks = [
-                asyncio.create_task(self.insert_row_at_time(row, db_path))
-                for row in table
-            ]
+            tasks = [asyncio.create_task(self.insert_row_at_time(row, db_path)) for row in table]
 
             try:
                 yield db_path
@@ -254,19 +252,12 @@ class RingssClientTestCase(unittest.IsolatedAsyncioTestCase):
                 # The five emitted events should match the last 5 stars in the
                 # database. The first five are not emitted because they have
                 # timestamps before the start of the data client.
-                for index, hrNum in enumerate(
-                    [evt.hrNum for evt in topics.evt_ringssMeasurement.data_list]
-                ):
+                for index, hrNum in enumerate([evt.hrNum for evt in topics.evt_ringssMeasurement.data_list]):
                     assert hrNum == index + 6
 
                 # The events should be sent about 1 second apart.
-                send_time = [
-                    evt.private_sndStamp
-                    for evt in topics.evt_ringssMeasurement.data_list
-                ]
-                delta_time = [
-                    send_time[i + 1] - send_time[i] for i in range(len(send_time) - 1)
-                ]
+                send_time = [evt.private_sndStamp for evt in topics.evt_ringssMeasurement.data_list]
+                delta_time = [send_time[i + 1] - send_time[i] for i in range(len(send_time) - 1)]
                 assert min(delta_time) > 0.8
                 assert max(delta_time) < 1.2
 
