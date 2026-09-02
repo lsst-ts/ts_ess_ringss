@@ -7,7 +7,7 @@ name = "ts_ess_ringss"
 description = "An ESS data client for the SOAR RINGSS database."
 license = { text = "GPL" }
 classifiers = ["Programming Language :: Python :: 3"]
-urls = { documentation = "https://ts-ess-ringss.lsst.io", repository = "https://github.com/lsst-ts/ts_ess_ringss" }
+urls = { documentation = "https://ts-ess-ringss.lsst.io", source_code = "https://github.com/lsst-ts/ts_ess_ringss" }
 dynamic = ["version"]
 dependencies = ["aiosqlite"]
 
@@ -21,6 +21,7 @@ where = ["python"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
 [project.optional-dependencies]
 dev = ["documenteer[pipelines]"]

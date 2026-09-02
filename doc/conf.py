@@ -27,9 +27,13 @@ https://developer.lsst.io/stack/building-single-package-docs.html
 """
 
 import lsst.ts.ess.ringss  # noqa
-from documenteer.conf.pipelinespkg import *  # type: ignore # noqa
+from documenteer.conf.guide import *  # noqa
 
 project = "ts_ess_ringss"
 html_theme_options["logotext"] = project  # type: ignore # noqa
 html_title = project
 html_short_title = project
+
+intersphinx_mapping["ts_salobj"] = ("https://ts-salobj.lsst.io", None)  # type: ignore # noqa
+intersphinx_mapping["ts_utils"] = ("https://ts-utils.lsst.io", None)  # type: ignore # noqa
+intersphinx_mapping["ts_ess_common"] = ("https://ts-ess-common.lsst.io", None)  # type: ignore # noqa
