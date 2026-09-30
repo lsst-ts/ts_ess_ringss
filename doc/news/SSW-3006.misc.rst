@@ -1,0 +1,1 @@
+Removed leftover flake8 configuration, removed scons support, and aligned the packaging with the developer guide.
