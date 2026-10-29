@@ -22,6 +22,7 @@ test:
     - backoff
     - pyyaml
     - sqlalchemy
+    - greenlet
   source_files:
     - python
     - tests
@@ -51,3 +52,4 @@ requirements:
     - backoff
     - pyyaml
     - sqlalchemy
+    - greenlet
